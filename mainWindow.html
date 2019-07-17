@@ -14,8 +14,7 @@
     <ul>
     </ul>
 
-    <div id="resultDiv">
-    </div>
+
 
 </body>
 
@@ -44,30 +43,35 @@
         e.target.remove();
     }
 
+    /* CONNECT TO DB */
     const mysql = require("mysql");
     const connection = mysql.createConnection({
         host: 'localhost',
         user: 'root',
         password: '',
         database: 'shopping_electron',
-        insecureAuth: true,
         port: 3308
     });
 
     connection.connect();
 
+    /* GET ITEMS FROM DB */
     $cartQuery = "SELECT * FROM cart WHERE 1";
 
     connection.query($cartQuery, function (error, results, fields) {
         if (error) {
             console.log(error.code);
         } else {
-            console.log("IT WORKS");
-            console.log(results);
+            // console.log("IT WORKS");
+            // console.log(results);
 
             for (let index = 0; index < results.length; index++) {
                 const element = results[index];
                 console.log(element);
+                const li = document.createElement('li');
+                const itemText = document.createTextNode(element.item_name);
+                li.appendChild(itemText);
+                ul.appendChild(li);
             }
 
         }
