@@ -26,26 +26,6 @@
     const ul = document.querySelector('ul');
     const refreshBtn = document.querySelector('#refresh');
 
-    // Add item
-    ipcRenderer.on('item:add', function (e, item) {
-        const li = document.createElement('li');
-        const itemText = document.createTextNode(item);
-        li.appendChild(itemText);
-        ul.appendChild(li);
-    });
-
-    // Clear item
-    ipcRenderer.on('item:clear', function () {
-        ul.innerHTML = '';
-    });
-
-    // Remove item
-    ul.addEventListener('dblclick', removeItem);
-
-    function removeItem(e) {
-        e.target.remove();
-    }
-
     /* CONNECT TO DB */
     const mysql = require("mysql");
     const connection = mysql.createConnection({
@@ -55,11 +35,49 @@
         database: 'shopping_electron',
         port: 3308
     });
-    
     connection.connect();
-    
+
+    // Add item IPC
+    ipcRenderer.on('item:add', function (e, item) {
+        const li = document.createElement('li');
+        const itemText = document.createTextNode(item);
+        li.appendChild(itemText);
+        ul.appendChild(li);
+    });
+
+    // Clear item IPC
+    ipcRenderer.on('item:clear', function () {
+        ul.innerHTML = '';
+    });
+
+    // Remove item IPC
+    // ul.addEventListener('dblclick', removeItem);
+
+    // Remove item SQL
+    ul.addEventListener('dblclick', delItem);
+
+    function removeItem(item) {
+        console.log(item.target.innerHTML);
+        item.target.remove();
+    }
+
+    /* DELETE ITEM FROM DB */
+    function delItem(item){
+        console.log(item.target.innerHTML);
+        $query = 'DELETE FROM cart WHERE item_name="'+ item.target.innerHTML + '";';
+        connection.query($query, function (error, results, fields) {
+            if (error) {
+                console.log(error.code);
+            }else{
+                // remove from list 
+                item.target.remove();
+                console.log(item.target.innerHTML + ' was deleted');
+            }
+        });
+    }
+
+    /* GET ITEMS FROM DB */
     function getItems() {
-        /* GET ITEMS FROM DB */
         
         $cartQuery = "SELECT * FROM cart WHERE 1";
         connection.query($cartQuery, function (error, results, fields) {
@@ -82,7 +100,7 @@
         });
         // connection.end();
     }
-    refreshBtn.addEventListener('click', function(){
+    refreshBtn.addEventListener('click', function () {
         // Clear the list
         ul.innerHTML = '';
         // Re-add the items in the list
