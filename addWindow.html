@@ -14,23 +14,66 @@
             <label>Enter Item</label>
             <input type="text" id="item" autofocus>
         </div>
-        <button type="submit">Add Item</button>
+        <!-- <button type="submit">Add Item</button> -->
+        <button type="submit" id="postDB">Add to DB</button>
     </form>
+
+    <div id="resultsDiv">
+    </div>
 
     <script>
         const electron = require('electron');
         const { ipcRenderer } = electron;
-        
+
+        const resultsDiv = document.querySelector("#resultsDiv");
+
         const form = document.querySelector('form');
-        form.addEventListener('submit', submitForm);
-
-
-        function submitForm(e){
+        // form.addEventListener('submit', submitForm);
+        form.addEventListener('submit', postToDb);
+  
+        function submitForm(e) {
             e.preventDefault();
             console.log(1234);
             const item = document.querySelector('#item').value;
             ipcRenderer.send('item:add', item);
         }
+
+
+        /* CONNECT TO DB */
+        const mysql = require("mysql");
+        const connection = mysql.createConnection({
+            host: 'localhost',
+            user: 'root',
+            password: '',
+            database: 'shopping_electron',
+            port: 3308
+        });
+        
+        /* POST ITEMS TO DB*/
+        function postToDb(e) {
+            e.preventDefault();
+            const item = document.querySelector('#item').value;
+    
+    
+            $query = 'INSERT INTO cart (item_name) VALUES ("' + item + '") ;';
+            connection.connect();
+
+            connection.query($query, function(error, results, fields){
+                if(error){
+                    console.log(error.code);
+                }
+                else{
+                    // Display  output on Add window + console
+                    const p = document.createElement("p");
+                    const textNode = document.createTextNode(item + ' was added');
+                    p.appendChild(textNode);
+                    resultsDiv.appendChild(p);
+                    console.log(item + ' was added');
+                }
+            });
+            connection.end();
+        }
+
 
     </script>
 </body>

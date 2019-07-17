@@ -11,6 +11,8 @@
 <body>
     <h1>Shopping List</h1>
 
+    <button id="refresh">Refresh Page</button>
+
     <ul>
     </ul>
 
@@ -22,6 +24,7 @@
     const electron = require('electron');
     const { ipcRenderer } = electron;
     const ul = document.querySelector('ul');
+    const refreshBtn = document.querySelector('#refresh');
 
     // Add item
     ipcRenderer.on('item:add', function (e, item) {
@@ -52,31 +55,40 @@
         database: 'shopping_electron',
         port: 3308
     });
-
+    
     connection.connect();
+    
+    function getItems() {
+        /* GET ITEMS FROM DB */
+        
+        $cartQuery = "SELECT * FROM cart WHERE 1";
+        connection.query($cartQuery, function (error, results, fields) {
+            if (error) {
+                console.log(error.code);
+            } else {
+                // console.log("IT WORKS");
+                // console.log(results);
 
-    /* GET ITEMS FROM DB */
-    $cartQuery = "SELECT * FROM cart WHERE 1";
+                for (let index = 0; index < results.length; index++) {
+                    const element = results[index];
+                    console.log(element);
+                    const li = document.createElement('li');
+                    const itemText = document.createTextNode(element.item_name);
+                    li.appendChild(itemText);
+                    ul.appendChild(li);
+                }
 
-    connection.query($cartQuery, function (error, results, fields) {
-        if (error) {
-            console.log(error.code);
-        } else {
-            // console.log("IT WORKS");
-            // console.log(results);
-
-            for (let index = 0; index < results.length; index++) {
-                const element = results[index];
-                console.log(element);
-                const li = document.createElement('li');
-                const itemText = document.createTextNode(element.item_name);
-                li.appendChild(itemText);
-                ul.appendChild(li);
             }
-
-        }
+        });
+        // connection.end();
+    }
+    refreshBtn.addEventListener('click', function(){
+        // Clear the list
+        ul.innerHTML = '';
+        // Re-add the items in the list
+        getItems();
     });
-    connection.end();
+
 
 </script>
 
