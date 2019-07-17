@@ -10,33 +10,70 @@
 
 <body>
     <h1>Shopping List</h1>
-</body>
+
     <ul>
     </ul>
-    <script>
-        const electron = require('electron');
-        const { ipcRenderer} = electron;
-        const ul = document.querySelector('ul');
 
-        // Add item
-        ipcRenderer.on('item:add', function(e, item){
-            const li = document.createElement('li');
-            const itemText = document.createTextNode(item);
-            li.appendChild(itemText);
-            ul.appendChild(li);
-        });
+    <div id="resultDiv">
+    </div>
 
-        // Clear item
-        ipcRenderer.on('item:clear', function(){
-            ul.innerHTML = '';
-        });
+</body>
 
-        // Remove item
-        ul.addEventListener('dblclick', removeItem);
+<script>
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+    const ul = document.querySelector('ul');
 
-        function removeItem(e){
-            e.target.remove();
+    // Add item
+    ipcRenderer.on('item:add', function (e, item) {
+        const li = document.createElement('li');
+        const itemText = document.createTextNode(item);
+        li.appendChild(itemText);
+        ul.appendChild(li);
+    });
+
+    // Clear item
+    ipcRenderer.on('item:clear', function () {
+        ul.innerHTML = '';
+    });
+
+    // Remove item
+    ul.addEventListener('dblclick', removeItem);
+
+    function removeItem(e) {
+        e.target.remove();
+    }
+
+    const mysql = require("mysql");
+    const connection = mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: '',
+        database: 'shopping_electron',
+        insecureAuth: true,
+        port: 3308
+    });
+
+    connection.connect();
+
+    $cartQuery = "SELECT * FROM cart WHERE 1";
+
+    connection.query($cartQuery, function (error, results, fields) {
+        if (error) {
+            console.log(error.code);
+        } else {
+            console.log("IT WORKS");
+            console.log(results);
+
+            for (let index = 0; index < results.length; index++) {
+                const element = results[index];
+                console.log(element);
+            }
+
         }
+    });
+    connection.end();
 
-    </script>
+</script>
+
 </html>
