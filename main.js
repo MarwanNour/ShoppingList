@@ -1,11 +1,7 @@
 const electron = require("electron");
 const url = require("url");
 const path = require("path");
-
-
 const { app, BrowserWindow, Menu, ipcMain } = electron;
-
-
 
 let mainWindow;
 let addWindow;
@@ -58,7 +54,6 @@ function createAddWindow() {
         slashes: true
     }));
 
-
     //Garbage Collection handle
     addWindow.on('close', function () {
         addWindow = null;
@@ -71,7 +66,6 @@ ipcMain.on('item:add', function (e, item) {
     mainWindow.webContents.send('item:add', item);
     addWindow.close();
 });
-
 
 // Create Menu Template
 const mainMenuTemplate = [
@@ -109,7 +103,6 @@ if (process.platform == 'darwin') {
 
 
 // Add Developer tools itme if not in production
-
 if (process.env.NODE_ENV !== 'production') {
     mainMenuTemplate.push({
         label: 'Developer Tools',
